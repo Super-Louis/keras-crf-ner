@@ -5,6 +5,7 @@
 # Time    : 18-9-14 16:45
 import json
 import numpy as np
+import sys
 from keras.models import Sequential, load_model
 from keras import models
 from keras.layers import Embedding, Bidirectional, LSTM, Dense, Dropout
@@ -89,25 +90,28 @@ def create_custom_objects():
         return method(*args)
     return {"ClassWrapper": ClassWrapper ,"CRF": ClassWrapper, "loss": loss, "accuracy":accuracy}
 
-def predict(words):
+def predict():
     '''预测时也要padding!!!'''
     model = load_model('keras_crf', custom_objects=create_custom_objects())
-    sentence = []
-    for i in words:
-        if i in word2num:
-            sentence.append(word2num[i])
-        else:
-            sentence.append(word2num['<UNK>'])
-    sentence = pad_sequences([sentence], maxlen=max_len, value=0)
-    y_pred = model.predict(sentence).argmax(-1)[sentence > 0]
-    print([label2tag[t] for t in y_pred])
+    print('enter ctrl+c to exit.')
+    words = input('please enter a sentence: ')
+    while words:
+        sentence = []
+        for i in words:
+            if i in word2num:
+                sentence.append(word2num[i])
+            else:
+                sentence.append(word2num['<UNK>'])
+        sentence = pad_sequences([sentence], maxlen=max_len, value=0)
+        y_pred = model.predict(sentence).argmax(-1)[sentence > 0]
+        print([label2tag[t] for t in y_pred])
+        words = input('please enter a sentence: ')
+
 
 if __name__ == '__main__':
     # train()
-    predict('JAVA工程师')
-    # num2word, label2tag = load_di()
-    # X_train, X_test, Y_train, Y_test = gen_datasets()
-    # print(X_train[0], Y_train[0])
-    # x = [num2word[str(i)] for i in X_train[0]]
-    # y = [label2tag[i[0]] for i in Y_train[0]]
-    # print(x, y)
+    mode = sys.argv[1]
+    if mode == 'train':
+        train()
+    else:
+        predict()
