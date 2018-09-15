@@ -6,3 +6,4 @@
 - 模型预测，输入指令：`python3.6 model.py predict`  
 **demo**
 ![](https://github.com/Super-Louis/keras-crf-ner/raw/master/img/demo.png)
+注：本项目参考
