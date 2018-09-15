@@ -5,3 +5,4 @@
 - 模型训练，在命令行输入： `python3.6 model.py train`
 - 模型预测，输入指令：`python3.6 model.py predict`  
 **demo**
+![image](http://github.com/Super-Louis/keras-crf-ner/raw/master/img/demo.png)
