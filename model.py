@@ -15,7 +15,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 from keras.callbacks import TensorBoard
 from keras.callbacks import ModelCheckpoint
-from keras.layers import Input
+from pprint import pprint
 
 voc_size = 3142
 max_len = 80
@@ -27,13 +27,13 @@ with open('data/num2word', 'r') as f:
 word2num = {
     w: k for k, w in num2word.items()
 }
-tag2label = {"O": 0,
+ner2label = {"O": 0,
              "B-PER": 1, "I-PER": 2,
              "B-LOC": 3, "I-LOC": 4,
              "B-ORG": 5, "I-ORG": 6
              }
-label2tag = {
-    w: k for k, w in tag2label.items()
+label2ner = {
+    w: k for k, w in ner2label.items()
 }
 
 def gen_datasets():
@@ -93,7 +93,7 @@ def create_custom_objects():
 def predict():
     '''预测时也要padding!!!'''
     model = load_model('keras_crf', custom_objects=create_custom_objects())
-    print('enter ctrl+c to exit.')
+    print('\nEnter ctrl+c to exit.')
     words = input('please enter a sentence: ')
     while words:
         sentence = []
@@ -104,8 +104,29 @@ def predict():
                 sentence.append(word2num['<UNK>'])
         sentence = pad_sequences([sentence], maxlen=max_len, value=0)
         y_pred = model.predict(sentence).argmax(-1)[sentence > 0]
-        print([label2tag[t] for t in y_pred])
-        words = input('please enter a sentence: ')
+        ner_dict = {
+            "PER": '',
+            "LOC": '',
+            "ORG": '',
+            "O": ''
+        }
+        ner_list = {
+            "PER": [],
+            "LOC": [],
+            "ORG": [],
+            "O": []
+        }
+        for i in range(len(y_pred)):
+            ner = label2ner[y_pred[i]][-3:]
+            ner_dict[ner] += words[i]
+            for n, s in ner_dict.items():
+                if n != ner and s:
+                    ner_list[n].append(s)
+                    ner_dict[n] = ''
+        ner_list.pop("O")
+        print("predict result: {}".format(ner_list))
+        words = input('\nplease enter a sentence: ')
+
 
 
 if __name__ == '__main__':
