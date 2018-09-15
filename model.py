@@ -61,10 +61,6 @@ def train():
     # 可视化
     tb = TensorBoard(log_dir='./tb_logs/0914', histogram_freq=0, write_graph=True, write_images=False,
                      embeddings_freq=0, embeddings_layer_names=None, embeddings_metadata=None)
-    # 早停，val_loss不再改善时，中止训练，epoch粒度
-    # early_stopping = EarlyStopping(monitor='val_loss', patience=2)
-    # keras.callbacks.Callback()除了默认包含epoch结尾的各结果还包含batch结尾的各个结果
-    # modelcheckpoint
     cp = ModelCheckpoint('./models/crf.{epoch:02d}-{val_acc:.2f}.hdf5', monitor='val_acc', verbose=0,
                          save_best_only=False, save_weights_only=False, mode='auto', period=1)
     model.fit(X_train, Y_train, batch_size=100, epochs=epoches,
@@ -77,6 +73,9 @@ def train():
     model.save('keras_crf')
 
 def create_custom_objects():
+    # Fix the problem of loading the model. For more details,
+    # please refer to https://github.com/keras-team/keras-contrib/issues/129 and
+    # https://github.com/keras-team/keras-contrib/issues/125
     instanceHolder = {"instance": None}
     class ClassWrapper(CRF):
         def __init__(self, *args, **kwargs):
@@ -91,7 +90,7 @@ def create_custom_objects():
     return {"ClassWrapper": ClassWrapper ,"CRF": ClassWrapper, "loss": loss, "accuracy":accuracy}
 
 def predict():
-    '''预测时也要padding!!!'''
+    # don't forget to pad the sentence
     model = load_model('keras_crf', custom_objects=create_custom_objects())
     print('\nEnter ctrl+c to exit.')
     words = input('please enter a sentence: ')
@@ -126,8 +125,6 @@ def predict():
         ner_list.pop("O")
         print("predict result: {}".format(ner_list))
         words = input('\nplease enter a sentence: ')
-
-
 
 if __name__ == '__main__':
     # train()
