@@ -4,6 +4,7 @@
 - 最终模型在测试集上的精度为98%
 - 模型训练，在命令行输入： `python3.6 model.py train`
 - 模型预测，输入指令：`python3.6 model.py predict`  
+
 **demo**
 ![](https://github.com/Super-Louis/keras-crf-ner/raw/master/img/demo.png)
-注：本项目参考
+注：本项目参考https://github.com/Determined22/zh-NER-TF
